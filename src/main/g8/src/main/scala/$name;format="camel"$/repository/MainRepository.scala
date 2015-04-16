@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class MainRepository @Autowired()(
-  @Value("${mongodb.host}") host: String,
-  @Value("${mongodb.port}") port: Integer,
-  @Value("${mongodb.db}") dbName: String )
+  @Value("\${mongodb.host}") host: String,
+  @Value("\${mongodb.port}") port: Integer,
+  @Value("\${mongodb.db}") dbName: String )
 {
   val coll = MongoClient(host, port)(dbName)("Msg")
 

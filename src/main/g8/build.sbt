@@ -1,4 +1,4 @@
-name := "$name;format=\"camel\"$"
+name := "$name;format="camel"$"
 
 version := "0.0.1"
 

@@ -10,13 +10,13 @@ import org.springframework.web.servlet.view.RedirectView
 @Controller
 class MainView {
 
-  val pageRegex = """^/(.+)\.html$""".r
+  val pageRegex = """^/(.+)\.html\$""".r
 
   @RequestMapping(value = Array("**/*.html"), method = Array(RequestMethod.GET))
   def html(request: HttpServletRequest): ModelAndView = {
     val pageRegex(pagePath) = request.getServletPath
     val model = new java.util.HashMap[String, Object]()
-    model.put("pagePath", s"/${pagePath}")
+    model.put("pagePath", s"/\${pagePath}")
     new ModelAndView(pagePath, model)
   }
 

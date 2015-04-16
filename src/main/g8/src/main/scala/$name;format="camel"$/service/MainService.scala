@@ -20,7 +20,7 @@ class MainService {
 
   def findMsgList(): MongoCursor = repository.find(MongoDBObject()).sort(MongoDBObject("date" -> 1))
 
-  def findMsgList(author: String) : MongoCursor = repository.find("author" $eq author).sort(MongoDBObject("date" -> 1))
+  def findMsgList(author: String) : MongoCursor = repository.find("author" \$eq author).sort(MongoDBObject("date" -> 1))
 
   def findFormattedMsg() = findMsgList().map(formatMsgFn)
 
@@ -28,5 +28,5 @@ class MainService {
 
   def formatMsgFn = (msg: DBObject) => msg.date.getTime+"@"+msg.author+":"+msg.msg
 
-  def echo(msg: String): String = s"Service : ${msg}"
+  def echo(msg: String): String = s"Service : \${msg}"
 }

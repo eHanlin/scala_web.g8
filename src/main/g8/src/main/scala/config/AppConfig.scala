@@ -8,7 +8,7 @@ import org.springframework.context.support.{PropertySourcesPlaceholderConfigurer
 import org.springframework.core.io.ClassPathResource
 
 @Configuration
-@ComponentScan(basePackages = Array("$name;format=\"camel\"$.repository", "$name;format=\"camel\"$.service"))
+@ComponentScan(basePackages = Array("$name;format="camel"$.repository", "$name;format="camel"$.service"))
 class AppConfig {
 
   @Bean
@@ -33,9 +33,9 @@ class AppConfig {
   def defaultLocale: Locale = Locale.TAIWAN
 
   @Bean
-  def version(@Value("${version}") versionValue: String): String = versionValue
+  def version(@Value("\${version}") versionValue: String): String = versionValue
 
   @Bean
-  def cdn(@Value("${cdn}") cdnValue: String): String = cdnValue
+  def cdn(@Value("\${cdn}") cdnValue: String): String = cdnValue
 
 }

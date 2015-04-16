@@ -17,7 +17,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy
-@ComponentScan(basePackages = Array("aop", "$name;format=\"camel\"$"))
+@ComponentScan(basePackages = Array("aop", "$name;format="camel"$"))
 class WebConfig extends WebMvcConfigurerAdapter {
 
   override def addResourceHandlers(registry: ResourceHandlerRegistry): Unit = {
@@ -97,9 +97,9 @@ class WebConfig extends WebMvcConfigurerAdapter {
   }
 
   @Bean
-  def version(@Value("${version}") versionValue: String): String = versionValue
+  def version(@Value("\${version}") versionValue: String): String = versionValue
 
   @Bean
-  def cdn(@Value("${cdn}") cdnValue: String): String = cdnValue
+  def cdn(@Value("\${cdn}") cdnValue: String): String = cdnValue
 
 }
