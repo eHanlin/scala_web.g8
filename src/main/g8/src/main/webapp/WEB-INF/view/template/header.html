@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="zh-tw" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <div th:fragment="header(page)">
+            <ul class="nav nav-tabs">
+                <li role="presentation" th:class="${page == 'index'}? 'active' : ''"><a th:href="@{/index.html}" th:text="#{/index.title}">Index</a></li>
+                <li role="presentation" th:class="${page == 'authorList'}? 'active' : ''"><a th:href="@{/author/list.html}" th:text="#{/author/list.title}">Author List</a></li>
+                <li role="presentation" th:class="${page == 'authorMessageList'}? 'active' : ''"><a th:href="@{/author/messageList.html}" th:text="#{/author/messageList.title}">Author Message List</a></li>
+            </ul>
+        </div>
+    </body>
+</html>

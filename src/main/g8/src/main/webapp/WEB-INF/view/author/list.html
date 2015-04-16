@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html layout:decorator="template/mb" lang="zh-tw" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<div layout:fragment="header" th:remove="tag">
+    <div th:include="template/header :: header('authorList')" th:remove="tag"></div>
+</div>
+<div layout:fragment="content" th:remove="tag">
+    <table class="table table-striped author">
+        <tbody></tbody>
+    </table>
+</div>
+</body>
+</html>

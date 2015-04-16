@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-tw" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <link rel="stylesheet" type="text/css" th:href="@{${@cdn+'/'+@version+'/css'+pagePath+'.css'}}"/>
+    <title th:text="#{${pagePath+'.title'}}"></title>
+</head>
+<body>
+    <div class="container">
+        <div layout:fragment="header"></div>
+        <div layout:fragment="content"></div>
+        <div class="row">
+            <div class="footer">
+                <span>Scala Web TEST</span>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{${@cdn+'/'+@version+'/i18n/'+#messages.msg('lang')+'.js'}}"></script>
+    <script th:src="@{${@cdn+'/'+@version+'/js'+pagePath+'.js'}}" type="text/javascript"></script>
+</body>
+</html>
