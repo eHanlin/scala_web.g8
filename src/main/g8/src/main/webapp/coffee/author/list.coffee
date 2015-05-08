@@ -7,4 +7,4 @@ $.get "#{page.root}/Msg/author" , (data) ->
     for author in data.result
       tbody.append("""<tr><td><a href="#{page.root}/author/messageList.html?author=#{encodeURIComponent(author)}">#{author}</a></td></tr>""")
   else
-    alert(page.i18n.error)
+    alert(page.i18n.fail)

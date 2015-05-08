@@ -10,12 +10,12 @@ $('form.message').submit () ->
     if v? != ''
       data[parameter] = v
     else
-      alert(page.i18n.error["#{parameter}Empty"])
+      alert(page.i18n.fail["#{parameter}Empty"])
       return false
 
   $.post "#{page.root}/Msg", data, (data) ->
     if(data.success)
       alert(page.i18n.success)
     else
-      alert(page.i18n.error.sendError)
+      alert(page.i18n.fail.sendError)
   false

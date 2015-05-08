@@ -46,5 +46,6 @@
 /project/project/*
 /project/target/*
 /src/main/resources/i18n
+/src/main/webapp/i18n
 /src/main/webapp/coffee/_*
 /src/main/webapp/less/_*

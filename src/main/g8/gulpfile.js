@@ -2,6 +2,7 @@ var gulp = require('gulp');
 
 var browserify = require('gulp-browserify');
 var less = require('gulp-less');
+var jsonnet = require('gulp-jsonnet');
 var livereload = require('gulp-livereload');
 var rename = require('gulp-rename');
 
@@ -18,6 +19,7 @@ var dir = 'src/main/webapp/';
 var resourceDir = dir+'resource';
 var coffeeDir = 'src/main/webapp/coffee/';
 var lessDir = 'src/main/webapp/less/';
+var jsonI18nDir = 'src/main/webapp/i18n/';
 var javaI18nDir = 'src/main/resources/i18n/';
 var javaI18nFileName = 'messages_#{file}.properties';
 var javaI18nFileNameRegex = /#{file}/g;
@@ -39,6 +41,7 @@ var paths = {
     libNodeModules: libNodeModules,
     resource: 'src/main/webapp/resource/**/*',
     coffee: dir+'coffee/**/*.coffee',
+    i18nSrc: 'src/main/i18n/**/*.jsonnet',
     i18n: dir+'i18n/**/*.json',
     i18ned: dir+'dist/'+version+'/i18n/**/*.json',
     js: dir+'dist/'+version+'/js/**/*.js',
@@ -72,18 +75,18 @@ var concatMainLess = function() {
 };
 
 var marginJson = function(defaultJson, targetJson) {
-  for(var p in defaultJson){
-      switch(typeof targetJson[p]){
-          case 'undefined':
-              targetJson[p] = defaultJson[p];
-              break;
-          case 'object':
-              if(targetJson[p] !== null && (typeof defaultJson[p]) !== 'undefined' && defaultJson[p] !== null){
-                  marginJson(defaultJson[p], targetJson[p]);
-              }
-              break;
-      }
-  }
+    for(var p in defaultJson){
+        switch(typeof targetJson[p]){
+            case 'undefined':
+                targetJson[p] = defaultJson[p];
+                break;
+            case 'object':
+                if(targetJson[p] !== null && (typeof defaultJson[p]) !== 'undefined' && defaultJson[p] !== null){
+                    marginJson(defaultJson[p], targetJson[p]);
+                }
+                break;
+        }
+    }
 };
 
 var marginI18n = function() {
@@ -143,12 +146,12 @@ var buildCoffeeCdn = function() {
         file.contents = new Buffer('module.exports = "'+cdn+'/'+version+'"');
         cb(null, file);
     });
-}
+};
 var buildLessCdn = function() {
     return es.map(function(file, cb){
-       var cdn = file.contents.toString().match(cdnRegex)[1].trim();
-       file.contents = new Buffer('@cdn: "'+cdn+'/'+version+'";');
-       cb(null, file);
+        var cdn = file.contents.toString().match(cdnRegex)[1].trim();
+        file.contents = new Buffer('@cdn: "'+cdn+'/'+version+'";');
+        cb(null, file);
     });
 };
 
@@ -159,7 +162,7 @@ var buildCoffeeVersion = function() {
         file.contents = new Buffer('module.exports = "'+version+'"');
         cb(null, file);
     });
-}
+};
 var buildLessVersion = function() {
     return es.map(function(file, cb){
         var version = file.contents.toString().match(versionRegex)[1].trim();
@@ -176,17 +179,18 @@ gulp.task('clean', function(cb){ del([
     lessDir+'_cdn.less',
     coffeeDir+'_version.coffee',
     lessDir+'_version.less',
+    jsonI18nDir,
     javaI18nDir], cb); });
 
 gulp.task('copy_node_modules', function(){
-   return gulp.src(paths.libNodeModules, {base:nodeModulesDir})
+    return gulp.src(paths.libNodeModules, {base:nodeModulesDir})
         .pipe(gulp.dest(dir+'dist/'+version+'/'))
         .pipe(gulp.dest(dir+'lib/'))
 });
 
 gulp.task('copy_resource', function(){
-   return gulp.src(paths.resource, {base:resourceDir})
-       .pipe(gulp.dest(dir+'dist/'+version+'/'))
+    return gulp.src(paths.resource, {base:resourceDir})
+        .pipe(gulp.dest(dir+'dist/'+version+'/'))
 });
 
 var coffeeCdnTask = function(paths){
@@ -199,10 +203,10 @@ var coffeeCdnTask = function(paths){
 gulp.task('coffeeCdn', function(){ return coffeeCdnTask([paths.cdn]); });
 
 var lessCdnTask = function(paths){
-  return gulp.src(paths)
-      .pipe(buildLessCdn())
-      .pipe(rename({basename:'_cdn', extname:'.less'}))
-      .pipe(gulp.dest(lessDir))
+    return gulp.src(paths)
+        .pipe(buildLessCdn())
+        .pipe(rename({basename:'_cdn', extname:'.less'}))
+        .pipe(gulp.dest(lessDir))
 };
 
 gulp.task('lessCdn', function(){ return lessCdnTask([paths.cdn]); });
@@ -225,6 +229,13 @@ var lessVersionTask = function(paths){
 
 gulp.task('lessVersion', function(){ return lessVersionTask([paths.version]); });
 
+var jsonnetI18nTask = function(paths){
+    return gulp.src(paths)
+        .pipe(jsonnet())
+        .pipe(gulp.dest(jsonI18nDir))
+};
+
+gulp.task('jsonnetI18n', function(){ return jsonnetI18nTask([paths.i18nSrc]); });
 
 var javaI18nTask = function(paths){
     return gulp.src(paths)
@@ -233,7 +244,7 @@ var javaI18nTask = function(paths){
         .pipe(gulp.dest(javaI18nDir));
 };
 
-gulp.task('javaI18n', function(){ return javaI18nTask([paths.i18n]) });
+gulp.task('javaI18n', ['jsonnetI18n'], function(){ return javaI18nTask([paths.i18n]) });
 
 var i18nTask = function(paths){
     return gulp.src(paths)
@@ -242,7 +253,7 @@ var i18nTask = function(paths){
         .pipe(gulp.dest(dir+'dist/'+version+'/i18n/'));
 };
 
-gulp.task('i18n', function(){ return i18nTask([paths.i18n]); });
+gulp.task('i18n', ['jsonnetI18n'], function(){ return i18nTask([paths.i18n]); });
 
 var coffeeTask = function(paths){
     return gulp.src(paths, {read: false})
@@ -263,7 +274,8 @@ gulp.task('less', ['lessVersion', 'lessCdn', 'copy_node_modules', 'copy_resource
 
 var watchTask = function(){
     livereload.listen();
-    gulp.watch([paths.i18n], function(event){ javaI18nTask([event.path]); i18nTask([event.path]); coffeeTask([paths.coffee]);});
+    gulp.watch([paths.i18nSrc], function(event){ jsonnetI18nTask([event.path]); });
+    gulp.watch([paths.i18n], function(event){ javaI18nTask([event.path]); i18nTask([event.path]); coffeeTask([paths.coffee]); });
     gulp.watch([paths.i18ned]).on('change', livereload.changed);
     gulp.watch([paths.coffee], function(event){ coffeeTask([paths.coffee]); });
     gulp.watch([paths.js]).on('change', livereload.changed);
@@ -271,6 +283,7 @@ var watchTask = function(){
     gulp.watch([paths.css]).on('change', livereload.changed);
     gulp.watch([paths.html]).on('change', livereload.changed);
 };
+
 
 gulp.task('watch', ['coffee', 'less', 'javaI18n', 'i18n'], function(){ watchTask(); });
 
