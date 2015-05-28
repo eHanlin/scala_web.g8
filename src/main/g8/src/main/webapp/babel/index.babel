@@ -1,0 +1,26 @@
+import $ from 'jquery';
+import i18n from './util/i18n';
+import page from './util/page';
+
+$('form.message').submit(() => {
+    let data = {};
+
+    ['author', 'message'].forEach(parameter => {
+        let v = $(`input[name="${parameter}"]`).val();
+        if(v != '')
+            data[parameter] = v;
+        else {
+            alert(page.i18n.error[`${parameter}Empty`]);
+            return false;
+        }
+    });
+
+    $.post(`${page.root}/Msg`, data, (result) => {
+        if(result.success)
+            alert(page.i18n.success)
+        else
+            alert(page.i18n.error.sendError)
+    });
+
+    return false;
+});

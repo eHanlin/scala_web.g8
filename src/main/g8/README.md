@@ -1,6 +1,15 @@
-#$name;format="Camel"$
 
 ## 環境佈置
+
+###初始化
+
+```shell
+sbt
+>changeConfig
+>exit
+npm install
+gulp
+```
 
 ### gulp
 

@@ -1,6 +1,9 @@
 var gulp = require('gulp');
 
 var browserify = require('gulp-browserify');
+var coffee = require('gulp-coffee');
+var babel = require('gulp-babel');
+var typescript = require('gulp-typescript');
 var less = require('gulp-less');
 var jsonnet = require('gulp-jsonnet');
 var livereload = require('gulp-livereload');
@@ -18,6 +21,10 @@ var nodeModulesDir = 'node_modules/';
 var dir = 'src/main/webapp/';
 var resourceDir = dir+'resource';
 var coffeeDir = 'src/main/webapp/coffee/';
+var babelDir = 'src/main/webapp/babel/';
+var typescriptDir = 'src/main/webapp/typescript/';
+var traceurDir = 'src/main/webapp/traceur/';
+var jsTmpDir = 'src/main/webapp/jsTmp/';
 var lessDir = 'src/main/webapp/less/';
 var jsonI18nDir = 'src/main/webapp/i18n/';
 var javaI18nDir = 'src/main/resources/i18n/';
@@ -40,7 +47,11 @@ var paths = {
     cdn: 'src/main/resources/cdn.properties',
     libNodeModules: libNodeModules,
     resource: 'src/main/webapp/resource/**/*',
-    coffee: dir+'coffee/**/*.coffee',
+    jsTmp: jsTmpDir+'**/*.js',
+    coffee: coffeeDir+'**/*.coffee',
+    babel: babelDir+'**/*.babel',
+    typescript: typescriptDir+'**/*.ts',
+    traceur: traceurDir+'**/*.traceur',
     i18nSrc: 'src/main/i18n/**/*.jsonnet',
     i18n: dir+'i18n/**/*.json',
     i18ned: dir+'dist/'+version+'/i18n/**/*.json',
@@ -175,6 +186,7 @@ var buildLessVersion = function() {
 gulp.task('clean', function(cb){ del([
     dir+'/lib',
     dir+'/dist',
+    jsTmpDir,
     coffeeDir+'_cdn.coffee',
     lessDir+'_cdn.less',
     coffeeDir+'_version.coffee',
@@ -255,14 +267,42 @@ var i18nTask = function(paths){
 
 gulp.task('i18n', ['jsonnetI18n'], function(){ return i18nTask([paths.i18n]); });
 
+
 var coffeeTask = function(paths){
-    return gulp.src(paths, {read: false})
-        .pipe(browserify({transform: ['coffeeify'], extensions: ['.coffee','.js','json']}))
+    return gulp.src(paths)
+        .pipe(coffee({bare: true}).on('error', gutil.log))
         .pipe(rename({extname:'.js'}))
-        .pipe(gulp.dest(dir+'dist/'+version+'/js/'));
+        .pipe(gulp.dest(jsTmpDir))
 };
 
-gulp.task('coffee', ['coffeeVersion', 'coffeeCdn', 'copy_resource'], function(){ return coffeeTask([paths.coffee]); });
+gulp.task('coffee', ['coffeeVersion', 'coffeeCdn', 'copy_resource'], function(){ return coffeeTask(paths.coffee); });
+
+var babelTask = function(paths){
+    return gulp.src(paths)
+        .pipe(babel())
+        .pipe(rename({extname:'.js'}))
+        .pipe(gulp.dest(jsTmpDir))
+};
+
+gulp.task('babel', ['coffeeVersion', 'coffeeCdn', 'copy_resource'], function(){ return babelTask(paths.babel); });
+
+var typescriptTask = function(paths){
+    return gulp.src(paths)
+        .pipe(typescript({target:"ES5", module:"commonjs", removeComments:true}))
+        .pipe(rename({extname:'.js'}))
+        .pipe(gulp.dest(jsTmpDir))
+};
+
+gulp.task('typescript', ['coffeeVersion', 'coffeeCdn', 'copy_resource'], function(){ return typescriptTask(paths.typescript); });
+
+var browserifyTask = function(paths){
+    return gulp.src(paths, {read: false})
+        .pipe(browserify({extensions: ['.js']}))
+        .pipe(gulp.dest(dir+'dist/'+version+'/js/'))
+};
+
+gulp.task('browserify', ['coffee', 'babel', 'typescript', 'copy_resource'], function(){ return browserifyTask(paths.jsTmp); });
+
 
 var lessTask = function(paths){
     return gulp.src(paths)
@@ -278,6 +318,9 @@ var watchTask = function(){
     gulp.watch([paths.i18n], function(event){ javaI18nTask([event.path]); i18nTask([event.path]); coffeeTask([paths.coffee]); });
     gulp.watch([paths.i18ned]).on('change', livereload.changed);
     gulp.watch([paths.coffee], function(event){ coffeeTask([paths.coffee]); });
+    gulp.watch([paths.babel], function(event){ babelTask([paths.babel]); });
+    gulp.watch([paths.typescript], function(event){ typescriptTask([paths.typescript]); });
+    gulp.watch([paths.jsTmp], function(event){ browserifyTask([paths.jsTmp]); });
     gulp.watch([paths.js]).on('change', livereload.changed);
     gulp.watch([paths.less], function(event){ lessTask([paths.less]); });
     gulp.watch([paths.css]).on('change', livereload.changed);
@@ -285,8 +328,8 @@ var watchTask = function(){
 };
 
 
-gulp.task('watch', ['coffee', 'less', 'javaI18n', 'i18n'], function(){ watchTask(); });
+gulp.task('watch', ['browserify', 'less', 'javaI18n', 'i18n'], function(){ watchTask(); });
 
-gulp.task('build', ['coffee', 'less', 'javaI18n', 'i18n']);
+gulp.task('build', ['browserify', 'less', 'javaI18n', 'i18n']);
 
-gulp.task('default', ['coffee', 'less', 'javaI18n', 'i18n']);
+gulp.task('default', ['browserify', 'less', 'javaI18n', 'i18n']);
