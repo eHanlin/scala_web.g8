@@ -14,7 +14,7 @@
         "gulp-util": ">=3.0.4",
         "lodash.assign": ">=3.0.0",
         "path": ">=0.11.14",
-        "gulp-jsonnet": ">=0.0.2",
+        "gulp-jsonnet": ">=0.0.3",
 
         "jquery": ">=2.1.3",
         "URIjs" : ">=1.15.0",
