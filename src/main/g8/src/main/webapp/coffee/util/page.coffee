@@ -1,6 +1,6 @@
 uri = require 'URIjs'
-webapp = require './webapp.coffee'
-i18n = require './i18n.coffee'
+webapp = require './webapp'
+i18n = require './i18n'
 
 pageUri = uri(window.location.href)
 path = pageUri.pathname().substring(webapp.root.length)

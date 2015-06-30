@@ -1,5 +1,5 @@
 $ = require 'jquery'
-page = require '../util/page.coffee'
+page = require '../util/page'
 
 msgHandle = (data) ->
   if data.success
